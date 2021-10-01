@@ -1,45 +1,44 @@
 /*
  * PushButton.h
  *
- *  Created on: 30 de abr de 2019
+ *  Created on: 01 de oct de 2021
  *      Author: Georgines
  */
-
-#ifndef PUSHBUTTON_H_
-#define PUSHBUTTON_H_
-#define PUSHBUTTON_VERSION "1.0.0"
+#pragma once
+#define PUSHBUTTON_VERSION "2.0.0"
 #include "Arduino.h"
-#include "Adafruit_MCP23017.h"
+
+typedef void (*pAction)(int);
+typedef unsigned char (*pReadPin)(unsigned char);
+typedef void (*pModePin)(unsigned char, unsigned char);
 
 class PushButton
 {
 public:
-	void begin(uint8_t pin, uint8_t pullup, uint8_t initial_state = 0, uint8_t pressed = 0, unsigned int waiting_time = 150);
-	void begin(Adafruit_MCP23017 io, uint8_t pin, uint8_t pullup, uint8_t initial_state = 0,
-			   uint8_t pressed = 0, unsigned int waiting_time = 150);
-	void registerAction(void (*action)(uint8_t));
-	uint8_t read();
-	void setState(uint8_t state = 0) {
-		this->state = state;
-	}
-
-	uint8_t getState() const {
-		return state;
-	}
+	void begin(unsigned char pin, unsigned char pullup, unsigned char initial_state = LOW, unsigned char pressed = LOW, unsigned int release_time = 150);
+	void begin();
+	void registerAction(pAction action);
+	void registerReadFunction(pReadPin readPin);
+	void registerModeFunction(pModePin modePin);
+	void setPin(unsigned char pin);
+	void enablePullUp();
+	void setPressedToHigh();
+	void setPressedToLow();
+	void setStateToHigh();
+	void setStateToLow();
+	unsigned char getCurrentState() const;
+	void setReleaseTime(unsigned int release_time);
+	void run();
 
 private:
-	void (*action)(uint8_t) = NULL;
-	unsigned long tempoAtual = 0;
+	pAction action = nullptr;
+	pReadPin readPin = nullptr;
+	pModePin modePin = nullptr;
 	unsigned long last_time = 0;
-	bool io_expander = false;
-	uint8_t pin = 0;
-	Adafruit_MCP23017 io;
-	uint8_t readPin(uint8_t pin);
-	uint8_t pressed = 0;
-	uint8_t state = 0;
-	unsigned int waiting_time = 150;
+	unsigned char pin = 0;
+	unsigned char mode = INPUT;
+	unsigned char pressed = LOW;
+	unsigned char state = LOW;
+	unsigned int release_time = 150;
 	bool lock = false;
-	bool registered_action = false;
 };
-
-#endif /* PUSHBUTTON_H_ */

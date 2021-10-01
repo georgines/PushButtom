@@ -7,76 +7,106 @@
 
 #include "PushButton.h"
 
-void PushButton::begin(uint8_t pin, uint8_t pullup, uint8_t initial_state, uint8_t pressed, unsigned int waiting_time)
+void PushButton::begin(unsigned char pin, unsigned char pullup, unsigned char initial_state, unsigned char pressed, unsigned int release_time)
 {
 	this->pin = pin;
-	this->io_expander = false;
 	this->pressed = pressed;
-	this->waiting_time = waiting_time;
+	this->release_time = release_time;
 	this->state = initial_state;
-	uint8_t input_pullup = 0;
-	pullup ? input_pullup = INPUT_PULLUP : input_pullup = INPUT;
-	pinMode(pin, input_pullup);
+	this->begin();
 }
 
-void PushButton::begin(Adafruit_MCP23017 io, uint8_t pin, uint8_t pullup, uint8_t initial_state, uint8_t pressed, unsigned int waiting_time)
+void PushButton::begin()
 {
-	this->pin = pin;
-	this->io = io;
-	this->io_expander = true;
-	this->pressed = pressed;
-	this->waiting_time = waiting_time;
-	this->state = initial_state;
-	io.pinMode(pin, INPUT);
-	if (pullup)
+	if (this->modePin)
 	{
-		io.pullUp(pin, HIGH);
+		this->modePin(this->pin, this->mode);
 	}
 }
 
-uint8_t PushButton::read()
+void PushButton::registerAction(pAction action = nullptr)
 {
+	this->action = action;
+}
 
-	uint8_t pin_state = readPin(this->pin);
-	if (pin_state == pressed)
-	{
-		if (!lock)
-		{
-			state = !state;
-			if (this->registered_action)
-			{
-				this->action(state);
-			}
-			lock = true;
-		}
-		last_time = millis();
-	}
-	else
-	{
-		if (millis() - last_time >= waiting_time)
-		{
-			lock = false;
-			last_time = millis();
-		}
-	}
+void PushButton::registerReadFunction(pReadPin readPin = nullptr)
+{
+	this->readPin = readPin;
+}
+
+void PushButton::registerModeFunction(pModePin modePin = nullptr)
+{
+	this->modePin = modePin;
+}
+
+void PushButton::setPin(unsigned char pin)
+{
+	this->pin = pin;
+}
+
+void PushButton::enablePullUp()
+{
+	this->mode = INPUT_PULLUP;
+}
+
+void PushButton::setPressedToHigh()
+{
+	this->state = HIGH;
+}
+
+void PushButton::setPressedToLow()
+{
+	this->state = LOW;
+}
+
+void PushButton::setStateToHigh()
+{
+	this->state = HIGH;
+}
+
+void PushButton::setStateToLow()
+{
+	this->state = LOW;
+}
+
+unsigned char PushButton::getCurrentState() const
+{
 	return state;
 }
 
-uint8_t PushButton::readPin(uint8_t pin)
+void PushButton::setReleaseTime(unsigned int release_time)
 {
-	if (io_expander)
-	{
-		return io.digitalRead(pin);
-	}
-	else
-	{
-		return digitalRead(pin);
-	}
+	this->release_time = release_time;
 }
 
-void PushButton::registerAction(void (*action)(uint8_t))
+void PushButton::run()
 {
 
-	this->action = action;
-	this->registered_action = true;
+	if (this->readPin)
+	{
+		unsigned char pin_state = this->readPin(this->pin);
+
+		if (pin_state == pressed)
+		{
+			if (!lock)
+			{
+				state = !state;
+				if (this->action)
+				{
+					this->action(state);
+				}
+				lock = true;
+			}
+			last_time = millis();
+		}
+		else
+		{
+			if (millis() - last_time >= release_time)
+			{
+				lock = false;
+				last_time = millis();
+			}
+		}
+	}
+	return;
 }
