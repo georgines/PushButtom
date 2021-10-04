@@ -7,7 +7,7 @@
 
 #include "PushButton.h"
 
-void PushButton::begin(unsigned char pin, unsigned char pullup, unsigned char initial_state, unsigned char pressed, unsigned int release_time)
+void Georgines::PushButton::begin(unsigned char pin, unsigned char pullup, unsigned char initial_state, unsigned char pressed, unsigned int release_time)
 {
 	this->pin = pin;
 	this->pressed = pressed;
@@ -16,7 +16,7 @@ void PushButton::begin(unsigned char pin, unsigned char pullup, unsigned char in
 	this->begin();
 }
 
-void PushButton::begin()
+void Georgines::PushButton::begin()
 {
 	if (this->modePin)
 	{
@@ -24,62 +24,62 @@ void PushButton::begin()
 	}
 }
 
-void PushButton::registerAction(pAction action = nullptr)
+void Georgines::PushButton::registerAction(pAction action = nullptr)
 {
 	this->action = action;
 }
 
-void PushButton::registerReadFunction(pReadPin readPin = nullptr)
+void Georgines::PushButton::registerReadFunction(pReadPin readPin = nullptr)
 {
 	this->readPin = readPin;
 }
 
-void PushButton::registerModeFunction(pModePin modePin = nullptr)
+void Georgines::PushButton::registerModeFunction(pModePin modePin = nullptr)
 {
 	this->modePin = modePin;
 }
 
-void PushButton::setPin(unsigned char pin)
+void Georgines::PushButton::setPin(unsigned char pin)
 {
 	this->pin = pin;
 }
 
-void PushButton::enablePullUp()
+void Georgines::PushButton::enablePullUp()
 {
 	this->mode = INPUT_PULLUP;
 }
 
-void PushButton::setPressedToHigh()
+void Georgines::PushButton::setPressedToHigh()
 {
 	this->state = HIGH;
 }
 
-void PushButton::setPressedToLow()
+void Georgines::PushButton::setPressedToLow()
 {
 	this->state = LOW;
 }
 
-void PushButton::setStateToHigh()
+void Georgines::PushButton::setStateToHigh()
 {
 	this->state = HIGH;
 }
 
-void PushButton::setStateToLow()
+void Georgines::PushButton::setStateToLow()
 {
 	this->state = LOW;
 }
 
-unsigned char PushButton::getCurrentState() const
+unsigned char Georgines::PushButton::getCurrentState()
 {
 	return state;
 }
 
-void PushButton::setReleaseTime(unsigned int release_time)
+void Georgines::PushButton::setReleaseTime(unsigned int release_time)
 {
 	this->release_time = release_time;
 }
 
-void PushButton::run()
+void Georgines::PushButton::run()
 {
 
 	if (this->readPin)
